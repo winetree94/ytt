@@ -9,6 +9,8 @@ interface SettingsState {
   setModel: (model: string) => void;
   prompt: string;
   setPrompt: (prompt: string) => void;
+  baseLangCode: string;
+  setBaseLangCode: (baseLangCode: string) => void;
   langCodes: string[];
   setLangCodes: (langCodes: string[]) => void;
 }
@@ -20,8 +22,10 @@ export const useSettingsState = create<SettingsState>()(
       setOpenAIApiKey: (openAIApiKey) => set({ openAIApiKey }),
       model: GPT_MODELS.GPT_4_O_MINI,
       setModel: (model) => set({ model }),
-      prompt: '',
+      prompt: 'For currency, change it to the local currency based on the exchange rate.',
       setPrompt: (prompt) => set({ prompt }),
+      baseLangCode: 'ko',
+      setBaseLangCode: (baseLangCode) => set({ baseLangCode }),
       langCodes: ['en'],
       setLangCodes: (langCodes) => set({ langCodes }),
     }),
