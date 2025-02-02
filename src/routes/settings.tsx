@@ -2,7 +2,7 @@ import { Tabs, Flex, Input, MultiSelect, Select, Textarea, FileInput, ScrollArea
 import { useSettingsState } from "../stores/settings";
 import { useOriginSubtitlesStore } from "../stores/origin";
 import { useMemo, useState } from "react";
-import { sbvToJson } from "../tools/sbv";
+import { jsonToSbv, sbvToJson } from "../tools/sbv";
 import { Languages, LanguagesByCode, LanguagesByName } from "../tools/language";
 import { GPT_MODELS } from "../tools/gpt";
 import { useTranslatedSubtitlesStore } from "../stores/translation";
@@ -260,6 +260,18 @@ export function SettingPage() {
         {
           translationsEntries.map(([langCode, translations]) => (
             <Tabs.Panel key={langCode} value={langCode}>
+              <Button onClick={() => {
+                const sbv = jsonToSbv(translations);
+                const blob = new Blob([sbv], { type: 'application/text' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${LanguagesByCode[langCode].name}.sbv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}>
+                Download
+              </Button>
               <ScrollArea h={400} p='md'>
                 <Flex direction='column' gap='md'>
                   {Object.entries(translations).map(([timeline, text]) => (
