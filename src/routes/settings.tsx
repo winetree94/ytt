@@ -19,6 +19,8 @@ export function SettingPage() {
     setModel,
     baseLangCode,
     setBaseLangCode,
+    contextLength,
+    setContextLength,
     langCodes,
     setLangCodes,
   } = useSettingsState();
@@ -75,6 +77,7 @@ export function SettingPage() {
               `You are a professional translator.`,
               `translate ${LanguagesByCode[baseLangCode].name} into ${LanguagesByCode[langCode].name}`,
               `Keep context in translations.`,
+              `Please use simple and concise words if possible.`,
               prompt,
             ].join('\n'),
           },
@@ -85,6 +88,11 @@ export function SettingPage() {
       async function translateOnce(
         langCode: string,
       ) {
+        const prompt = history[langCode][0];
+        const messageHistory = history[langCode].slice(1);
+        const MAX_CONTEXT_LENGTH = 15;
+        const partialHistory = messageHistory.slice(-MAX_CONTEXT_LENGTH);
+
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -93,7 +101,10 @@ export function SettingPage() {
           },
           body: JSON.stringify({
             model: model,
-            messages: history[langCode]
+            messages: [
+              prompt,
+              ...partialHistory,
+            ] 
           })
         });
 
@@ -210,6 +221,17 @@ export function SettingPage() {
           setLangCodes(codes);
         }}
       />
+
+      <Input.Wrapper label="Context Length" size="md" mt='md'>
+        <Input
+          value={contextLength}
+          onChange={(event) => setContextLength(Number(event.currentTarget.value))}
+          radius="md"
+          variant="filled"
+          placeholder="10"
+          type="number"
+        />
+      </Input.Wrapper>
 
       <FileInput
         mt='md'

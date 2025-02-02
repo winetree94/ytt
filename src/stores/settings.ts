@@ -11,6 +11,8 @@ interface SettingsState {
   setPrompt: (prompt: string) => void;
   baseLangCode: string;
   setBaseLangCode: (baseLangCode: string) => void;
+  contextLength: number;
+  setContextLength: (contextLength: number) => void;
   langCodes: string[];
   setLangCodes: (langCodes: string[]) => void;
 }
@@ -26,6 +28,8 @@ export const useSettingsState = create<SettingsState>()(
       setPrompt: (prompt) => set({ prompt }),
       baseLangCode: 'ko',
       setBaseLangCode: (baseLangCode) => set({ baseLangCode }),
+      contextLength: 15,
+      setContextLength: (contextLength) => set({ contextLength }),
       langCodes: ['en'],
       setLangCodes: (langCodes) => set({ langCodes }),
     }),
