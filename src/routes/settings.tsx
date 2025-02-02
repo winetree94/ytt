@@ -40,13 +40,6 @@ export function SettingPage() {
     return Object.entries(subtitles);
   }, [subtitles]);
 
-  const translationsEntries = useMemo(() => {
-    if (!translations) {
-      return [];
-    }
-    return Object.entries(translations);
-  }, [translations]);
-
   async function translate() {
     if (!openAIApiKey) {
       return;
@@ -132,7 +125,7 @@ export function SettingPage() {
         return data.choices[0].message;
       }
 
-      await subtitleEntries.reduce<Promise<any>>((result, [timeline, text], index) => {
+      await subtitleEntries.reduce<Promise<void>>((result, [timeline, text], index) => {
         return result.then(async () => {
           await Promise.all(langCodes.map(async (langCode) => {
             history[langCode].push({
