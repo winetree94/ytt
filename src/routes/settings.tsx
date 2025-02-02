@@ -1,4 +1,4 @@
-import { Tabs, Flex, Input, MultiSelect, Select, Textarea, FileInput, ScrollArea, Card, Text, Button } from "@mantine/core";
+import { Table, Flex, Input, MultiSelect, Select, Textarea, FileInput, Button, Chip, ScrollArea } from "@mantine/core";
 import { useSettingsState } from "../stores/settings";
 import { useOriginSubtitlesStore } from "../stores/origin";
 import { useMemo, useState } from "react";
@@ -104,7 +104,7 @@ export function SettingPage() {
             messages: [
               prompt,
               ...partialHistory,
-            ] 
+            ]
           })
         });
 
@@ -258,60 +258,58 @@ export function SettingPage() {
         }}
       />
 
-      <ScrollArea h={400} p='md'>
-        <Flex direction='column' gap='md'>
-          {subtitleEntries.map(([timeline, text], index) => (
-            <Card key={index} shadow="sm" padding="lg" radius="md" withBorder>
-              <Text fw={500} mb='xs'>{timeline}</Text>
-              <Text size="sm" c="dimmed">
-                {text}
-              </Text>
-            </Card>
-          ))}
-        </Flex>
+      <ScrollArea>
+        <Table mt='md' layout="fixed" >
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th style={{ width: 200 }}>Time</Table.Th>
+              <Table.Th style={{ width: 200 }}>Base Translation</Table.Th>
+              {
+                langCodes.map((langCode) => (
+                  <Table.Th key={langCode} style={{ width: 200 }}>
+                    {LanguagesByCode[langCode].name}
+                    <Button
+                      disabled={!translations[langCode] || progress !== -1}
+                      ml='lg'
+                      size="xs"
+                      onClick={() => {
+                        const sbv = jsonToSbv(translations[langCode]);
+                        const blob = new Blob([sbv], { type: 'application/text' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${LanguagesByCode[langCode].name}.sbv`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}>
+                      Download
+                    </Button>
+                  </Table.Th>
+                ))
+              }
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {subtitleEntries.map(([timeline, text], index) => (
+              <Table.Tr key={index}>
+                <Table.Td>
+                  <Chip>
+                    {timeline}
+                  </Chip>
+                </Table.Td>
+                <Table.Td>{text}</Table.Td>
+                {
+                  langCodes.map((langCode) => (
+                    <Table.Td key={langCode}>
+                      {translations[langCode]?.[timeline]}
+                    </Table.Td>
+                  ))
+                }
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
       </ScrollArea>
-
-      <Tabs defaultValue="gallery">
-        <Tabs.List>
-          {translationsEntries.map(([langCode]) => (
-            <Tabs.Tab key={langCode} value={langCode}>
-              {LanguagesByCode[langCode].name}
-            </Tabs.Tab>
-          ))}
-        </Tabs.List>
-        {
-          translationsEntries.map(([langCode, translations]) => (
-            <Tabs.Panel key={langCode} value={langCode}>
-              <Button onClick={() => {
-                const sbv = jsonToSbv(translations);
-                const blob = new Blob([sbv], { type: 'application/text' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${LanguagesByCode[langCode].name}.sbv`;
-                a.click();
-                URL.revokeObjectURL(url);
-              }}>
-                Download
-              </Button>
-              <ScrollArea h={400} p='md'>
-                <Flex direction='column' gap='md'>
-                  {Object.entries(translations).map(([timeline, text]) => (
-                    <Card key={timeline} shadow="sm" padding="lg" radius="md" withBorder>
-                      <Card key={timeline} shadow="sm" padding="lg" radius="md" withBorder>
-                        <Text fw={500} mb='xs'>{timeline}</Text>
-                        <Text size="sm" c="dimmed">
-                          {text}
-                        </Text>
-                      </Card>
-                    </Card>
-                  ))}
-                </Flex>
-              </ScrollArea>
-            </Tabs.Panel>
-          ))
-        }
-      </Tabs>
     </Flex>
   )
 }
